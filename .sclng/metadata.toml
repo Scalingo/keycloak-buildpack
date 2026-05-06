@@ -1,6 +1,8 @@
-dependencies = ["Scalingo/buildpack-cmnlib"]
-description = "Buildpack for Keycloak"
+dependencies = ["https://github.com/Scalingo/buildpack-cmnlib"]
+description = "Keycloak Buildpack"
+flags = ["buildpack"]
 languages = ["shell"]
-owner = "francois.kubler@scalingo.com"
+owner = "team-infrastructure-services@scalingo.com"
 team = "IST"
+tier = 1
 version = "1.1.2"
