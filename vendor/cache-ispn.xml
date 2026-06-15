@@ -21,12 +21,6 @@
     xsi:schemaLocation="urn:infinispan:config:11.0 http://www.infinispan.org/schemas/infinispan-config-11.0.xsd"
     xmlns="urn:infinispan:config:11.0">
 
-    <jgroups>
-        <stack name="jdbc-ping-tcp" extends="tcp">
-            <JDBC_PING2 stack.combine="REPLACE" stack.position="MPING"/>
-        </stack>
-    </jgroups>
-
     <cache-container name="keycloak" statistics="true">
         <transport cluster="cluster" node-name="${env.CONTAINER}" stack="jdbc-ping-tcp" lock-timeout="60000"/>
         <local-cache name="realms">
