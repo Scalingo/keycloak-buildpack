@@ -23,6 +23,8 @@ hash_file="${tmp_dir:?}/${archive}.sha1"
 
 keycloak_dir="${build_dir:?}/keycloak"
 
+build_log="${tmp_dir:?}/build.log"
+
 # -----------------------------------------------------------------------------
 
 cmn::step::start "Installing JVM"
@@ -40,11 +42,12 @@ cmn::step::start "Installing Keycloak"
 # archive at the same URL/same version number)
 # So let's download the checksum:
 cmn::task::start "Downloading checksum"
-cmn::file::download "${hash_url}" "${hash_file}" \
-	|| cmn::main::fail "${?}" <<-EOM
+if ! cmn::file::download "${hash_url}" "${hash_file}"; then
+	cmn::main::fail "${?}" <<-EOM
 		Unable to download checksum file.
 		Aborting.
 	EOM
+fi
 cmn::task::finish
 
 if [[ ! -f "${cache_file}" ]]; then
@@ -58,11 +61,12 @@ if [[ ! -f "${cache_file}" ]]; then
 
 	# Download appropriate version:
 	cmn::task::start "Downloading archive"
-	cmn::file::download "${archive_url}" "${cache_file}" \
-		|| cmn::main::fail "${?}" <<-EOM
+	if ! cmn::file::download "${archive_url}" "${cache_file}"; then
+		cmn::main::fail "${?}" <<-EOM
 			Unable to download Keycloak archive.
 			Aborting.
 		EOM
+	fi
 	cmn::task::finish
 else
 	# The archive is in cache.
@@ -75,40 +79,38 @@ fi
 # We always check the archive validity to prevent cache corruption and other
 # issues.
 cmn::task::start "Checking archive validity"
-cmn::file::validate_checksum "${cache_file}" "${hash_file}" \
-	|| {
-		# File in cache does not seem valid,
-		# remove it so a future run can be successful
-		rm --force "${cache_file}"
+if ! cmn::file::validate_checksum "${cache_file}" "${hash_file}"; then
+	# File in cache does not seem valid,
+	# remove it so a future run can be successful
+	rm --force "${cache_file}"
 
-		cmn::main::fail 2 <<-EOM
-			The checksum for the archive file in the cache doesn't match what's
-			expected.
+	cmn::main::fail 2 <<-EOM
+		The checksum for the archive file in the cache doesn't match what's
+		expected.
 
-			Here are the most common causes:
+		Here are the most common causes:
 
-			- The archive file in the cache is corrupt. This can
-			  unfortunately happen, but has no strong consequences. Triggering
-			  a new deployment should fix the issue.
+		- The archive file in the cache is corrupt. This can unfortunately
+		  happen, but has no strong consequences. Triggering a new deployment
+		  should fix the issue.
 
-			- A networking issue occurred, causing the downloaded checksum
-			  file to be incomplete or corrupt. Triggering a new deployment
-			  should force the platform to download the archive and the
-			  checksum again, and the deployment should pass.
+		- A networking issue occurred, causing the downloaded checksum file to
+		  be incomplete or corrupt. Triggering a new deployment should force
+		  the platform to download the archive and the checksum again, and the
+		  deployment should pass.
 
-			- Upstream replaced the archive and its checksum, resulting in the
-			  same version number having a different checksum.
-			  This could mean a malicious threat tampered the source archive
-			  and its checksum.
-			  Please check upstream for a potential explanation and make sure
-			  it's still trustable.
+		- Upstream replaced the archive and its checksum, resulting in the
+		  same version number having a different checksum. This could mean a
+		  malicious threat tampered the source archive and its checksum.
+		  Please check upstream for a potential explanation and make sure it's
+		  still trustable.
 
-			In all cases, the cached archive has been removed to force a new
-			download during the next deployment attempt.
+		In all cases, the cached archive has been removed to force a new
+		download during the next deployment attempt.
 
-			Aborting.
-		EOM
-	}
+		Aborting.
+	EOM
+fi
 cmn::task::finish
 
 # From this point we have a valid file in cache.
@@ -147,11 +149,15 @@ cmn::task::finish
 cmn::step::start "Building optimized Keycloak image"
 
 cmn::task::start "Compiling"
-"${keycloak_dir}/bin/kc.sh" build > /dev/null 2>&1 \
-	|| cmn::main::fail "${?}" <<-EOM
-		Unable to build optimized Keycloak image.
+if ! "${keycloak_dir}/bin/kc.sh" build > "${build_log}"; then
+	cmn::main::fail "${?}" <<-EOM
+		Unable to build optimized Keycloak image. Build log:
+
+		$( cat "${build_log}" )
+
 		Aborting.
 	EOM
+fi
 cmn::task::finish
 
 # -----------------------------------------------------------------------------
