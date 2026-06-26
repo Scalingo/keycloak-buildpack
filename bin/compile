@@ -149,12 +149,12 @@ cmn::task::finish
 cmn::step::start "Building optimized Keycloak image"
 
 cmn::task::start "Compiling"
-if ! "${keycloak_dir}/bin/kc.sh" build > "${build_log}"; then
-	cmn::main::fail "${?}" <<-EOM
-		Unable to build optimized Keycloak image. Build log:
-
-		$( cat "${build_log}" )
-
+if ! "${keycloak_dir}/bin/kc.sh" build > "${build_log}" 2>&1; then
+	err="${?}"
+	cmn::task::fail
+	cmn::output::err < "${build_log}"
+	cmn::main::fail "${err}" <<-EOM
+		Unable to build optimized Keycloak image.
 		Aborting.
 	EOM
 fi
