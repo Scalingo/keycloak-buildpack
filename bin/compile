@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # usage: bin/compile <build_dir> <cache_dir> <env_dir>
 
+cmnlib="$( readlink -f "$( dirname "${0}" )/../vendor/cmnlib.sh" )"
 # shellcheck source=vendor/cmnlib.sh
-source "$( readlink -f "$( dirname "${0}" )/../vendor/cmnlib.sh" )"
+source "${cmnlib}"
 
 
 cmn::main::start "${0}" "${1}" "${2}" "${3}"
@@ -131,7 +132,7 @@ cmn::task::finish
 
 # -----------------------------------------------------------------------------
 
-cmn::step::start "Building Environment"
+cmn::step::start "Building environment"
 
 mkdir --parents "${build_dir:?}/.profile.d"
 
