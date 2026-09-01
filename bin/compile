@@ -16,8 +16,8 @@ inventory="${buildpack_dir:?}/INVENTORY.tsv"
 # This statement won't fail even if cmn::inventory::get_default were to fail.
 version="${KEYCLOAK_VERSION:-$( cmn::inventory::get_default "${inventory}" )}"
 
-[[ -n "${version}" ]] \
-	|| cmn::main::fail 1 <<- EOM
+if [[ -z "${version}" ]]; then
+	cmn::main::fail 1 <<- EOM
 		Unable to determine which version of Keycloak to deploy.
 		It seems like there's no default version in the inventory file either,
 		which isn't OK.
@@ -32,9 +32,9 @@ version="${KEYCLOAK_VERSION:-$( cmn::inventory::get_default "${inventory}" )}"
 
 		Aborting for now.
 	EOM
+fi
 
-if ! archive_url="$( cmn::inventory::get_url \
-					"${inventory}" "${version}" )"
+if ! archive_url="$( cmn::inventory::get_url "${inventory}" "${version}" )"
 then
 	cmn::main::fail 1 <<- EOM
 		Unable to retrieve download URL for version ${version}".
@@ -49,8 +49,7 @@ then
 	EOM
 fi
 
-if ! archive_checksum="$( cmn::inventory::get_checksum \
-					"${inventory}" "${version}" )"
+if ! archive_checksum="$( cmn::inventory::get_checksum "${inventory}" "${version}" )"
 then
 	cmn::main::fail 1 <<- EOM
 		Unable to retrieve checksum for version ${version}".
