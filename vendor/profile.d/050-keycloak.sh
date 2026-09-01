@@ -16,7 +16,6 @@ if [ -n "${SCALINGO_POSTGRESQL_URL}" ]; then
 	KC_DB_URL_DATABASE="${database}"
 	KC_DB_URL="${db_url}"
 	KC_DB_TLS_MODE="verify-server"
-	KC_CACHE_CONFIG_FILE="cache-ispn.xml"
 
 	export KC_DB
 	export KC_DB_USERNAME
@@ -26,5 +25,8 @@ if [ -n "${SCALINGO_POSTGRESQL_URL}" ]; then
 	export KC_DB_URL_DATABASE
 	export KC_DB_URL
 	export KC_DB_TLS_MODE
-	export KC_CACHE_CONFIG_FILE
 fi
+
+KC_CACHE_CONFIG_FILE="cache-ispn.xml"
+
+export KC_CACHE_CONFIG_FILE
