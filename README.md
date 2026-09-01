@@ -12,8 +12,7 @@ See the official tutorial:
 ## Default Supported Version
 
 The default Keycloak version deployed by this buildpack is specified in the
-`KEYCLOAK_DEFAULT_VERSION` variable, which can be found in the [`VERSIONS`]
-file.
+[inventory] file of the buildpack.
 
 
 ## Maintenance Status
@@ -35,6 +34,6 @@ whenever feasible, except where immediate action is required due to security
 concerns or external constraints.
 
 
-[`VERSIONS`]: VERSIONS?plain=1#L3
+[inventory]: INVENTORY.tsv?plain=1
 
 [Keycloak]: https://keycloak.org/
