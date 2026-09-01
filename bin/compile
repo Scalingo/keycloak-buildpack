@@ -10,21 +10,65 @@ cmn::main::start "${0}" "${1}" "${2}" "${3}"
 
 # -----------------------------------------------------------------------------
 
-# shellcheck source=VERSIONS
-source "${buildpack_dir:?}/VERSIONS"
-version="${KEYCLOAK_VERSION:-"${KEYCLOAK_DEFAULT_VERSION}"}"
+# Inventory file:
+inventory="${buildpack_dir:?}/INVENTORY.tsv"
 
-archive="keycloak-${version}.tar.gz"
+# This statement won't fail even if cmn::inventory::get_default were to fail.
+version="${KEYCLOAK_VERSION:-$( cmn::inventory::get_default "${inventory}" )}"
 
-archive_url="https://github.com/keycloak/keycloak/releases/download/${version}/${archive}"
-hash_url="${archive_url}.sha1"
+if [[ -z "${version}" ]]; then
+	cmn::main::fail 1 <<- EOM
+		Unable to determine which version of Keycloak to deploy.
+		It seems like there's no default version in the inventory file either,
+		which isn't OK.
 
-cache_file="${cache_dir:?}/${archive}"
-hash_file="${tmp_dir:?}/${archive}.sha1"
+		Please:
+		1. Set KEYCLOAK_VERSION environment variable to the desired value, and
+		   try to redeploy. It should pass.
+		2. Either reach out to our Support Team to let them know about this
+		   situation, or file an issue in the keycloak-buildpack repository
+		   (https://github.com/Scalingo/keycloak-buildpack/issues).
+		Thanks <3
 
+		Aborting for now.
+	EOM
+fi
+
+if ! archive_url="$( cmn::inventory::get_url "${inventory}" "${version}" )"
+then
+	cmn::main::fail 1 <<- EOM
+		Unable to retrieve download URL for version ${version}".
+		It seems like there's an issue with the buildpack inventory file.
+
+		Please either reach out to our Support Team to let them know about this
+		situation, or file an issue in the keycloak-buildpack repository
+		(https://github.com/Scalingo/keycloak-buildpack/issues)
+		Thanks <3
+
+		Aborting for now.
+	EOM
+fi
+
+if ! archive_checksum="$( cmn::inventory::get_checksum "${inventory}" "${version}" )"
+then
+	cmn::main::fail 1 <<- EOM
+		Unable to retrieve checksum for version ${version}".
+		It seems like there's an issue with the buildpack inventory file.
+
+		Please either reach out to our Support Team to let them know about this
+		situation, or file an issue in the keycloak-buildpack repository
+		(https://github.com/Scalingo/keycloak-buildpack/issues)
+		Thanks <3
+
+		Aborting for now.
+	EOM
+fi
+
+cache_file="${cache_dir:?}/keycloak-${version}.tar.gz"
 keycloak_dir="${build_dir:?}/keycloak"
-
 build_log="${tmp_dir:?}/build.log"
+
+cmn::output::info "Deploying Keycloak ${version}"
 
 # -----------------------------------------------------------------------------
 
@@ -37,19 +81,6 @@ cmn::bp::run "${build_dir:?}" "${cache_dir:?}" "${env_dir:?}" "${tmp_dir:?}" \
 # -----------------------------------------------------------------------------
 
 cmn::step::start "Installing Keycloak"
-
-# We always check archive validity using a freshly downloaded checksum to
-# detect/prevent immutability issues (i.e. cases where upstream replaces the
-# archive at the same URL/same version number)
-# So let's download the checksum:
-cmn::task::start "Downloading checksum"
-if ! cmn::file::download "${hash_url}" "${hash_file}"; then
-	cmn::main::fail "${?}" <<-EOM
-		Unable to download checksum file.
-		Aborting.
-	EOM
-fi
-cmn::task::finish
 
 if [[ ! -f "${cache_file}" ]]; then
 	# The archive doesn't exist in the cache.
@@ -80,7 +111,7 @@ fi
 # We always check the archive validity to prevent cache corruption and other
 # issues.
 cmn::task::start "Checking archive validity"
-if ! cmn::file::validate_checksum "${cache_file}" "${hash_file}"; then
+if ! cmn::file::validate_checksum "${cache_file}" "${archive_checksum}"; then
 	# File in cache does not seem valid,
 	# remove it so a future run can be successful
 	rm --force "${cache_file}"
@@ -91,14 +122,10 @@ if ! cmn::file::validate_checksum "${cache_file}" "${hash_file}"; then
 
 		Here are the most common causes:
 
-		- The archive file in the cache is corrupt. This can unfortunately
-		  happen, but has no strong consequences. Triggering a new deployment
-		  should fix the issue.
-
-		- A networking issue occurred, causing the downloaded checksum file to
+		- A networking issue occurred, causing the downloaded file to
 		  be incomplete or corrupt. Triggering a new deployment should force
-		  the platform to download the archive and the checksum again, and the
-		  deployment should pass.
+		  the platform to download the archive again, and the deployment should
+		  pass.
 
 		- Upstream replaced the archive and its checksum, resulting in the
 		  same version number having a different checksum. This could mean a
