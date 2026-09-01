@@ -1,0 +1,8 @@
+# This is a tab-separated file.
+# Each row has its own line and must have 3 columns (fields) separated by a tab character: version, URL and checksum.
+# The default value (the one used as default by the buildpack) must have a fourth column, whose value MUST be "default".
+# Only one row can have the "default" column.
+# Lines starting with a # are treated as comments. Empty lines are ignored.
+
+26.7.3	https://github.com/keycloak/keycloak/releases/download/26.7.3/keycloak-26.7.3.tar.gz	sha256:77657f30b7e90d70f727712ce1c967f430fd6a5e9f458d32d8c6df0635345f47	default
+26.7.2	https://github.com/keycloak/keycloak/releases/download/26.7.2/keycloak-26.7.2.tar.gz	sha256:4f3ce3b797a9d98998b7f1a6bd5d2b9832100faea66c48988713a9b23eda5c44

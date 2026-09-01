@@ -15,14 +15,14 @@
 #
 
 
-_CMN_VERSION_=20260320
+_CMN_VERSION_=20260831
 
 # If _CMN_LOADED_ is set, this means the library is already sourced.
 # As functions are readonly, we don't want to load it again, as this would
 # cause failures.
 # So, if _CMN_LOADED_ is set, return immediately.
 # Else, set it and load the functions.
-[[ -n "${_CMN_LOADED_}" ]] && return
+[[ -n "${_CMN_LOADED_:-}" ]] && return
 _CMN_LOADED_="yes"
 
 
@@ -60,9 +60,10 @@ _cmn__output_emit() {
 	local -r fd="${1:-1}"
 	shift || true
 
+	# shellcheck disable=SC2312
 	while IFS= read -r line; do
 		printf '%s%s\n' "${prefix}" "${line}" >&"${fd}"
-	done < <(_cmn__read_lines "$@")
+	done < <( _cmn__read_lines "$@" )
 }
 
 _cmn__main_err() {
@@ -179,7 +180,7 @@ cmn::output::err() {
 	local -r prefix=" !! "
 	_cmn__output_emit "${prefix}" 2 "${@}"
 
-	if [ -n "${_CMN_DEBUG_:-}" ]; then
+	if [[ -n "${_CMN_DEBUG_:-}" ]]; then
 		cmn::output::traceback
 	fi
 }
@@ -205,6 +206,7 @@ cmn::output::debug() {
 		unset _CMN_IN_TASK_
 	fi
 
+	# shellcheck disable=SC2312
 	while IFS= read -r line; do
 		printf " *  %s: %s: %s: %s\n" \
 			"${BASH_SOURCE[1]}" \
@@ -224,8 +226,8 @@ cmn::output::traceback() {
 	for (( i=1; i<${#FUNCNAME[@]}; i++ )); do
 		>&2 printf " !!   %s: %s: %s\n" \
 			"${BASH_SOURCE[i]}" \
-			"${FUNCNAME[$i]}" \
-			"${BASH_LINENO[$i-1]}"
+			"${FUNCNAME[${i}]}" \
+			"${BASH_LINENO[${i}-1]}"
 	done
 }
 
@@ -365,6 +367,156 @@ cmn::task::fail() {
 
 
 
+_cmn__inventory_get() {
+#
+# Given a specific version, retrieves the corresponding given field from the
+# inventory file.
+# When version is not set, retrieves the field for the version set as the
+# default one in the inventory.
+#
+# $1: inventory file
+# $2: field to retrieve. Must be one of "version", "url" or "checksum"
+# $3: (opt) version to retrieve. If not set, retrieves the field for the
+#     default version, if any.
+#
+# Returns:
+#   0: value found
+#   1: no matching entry found
+#   2: invalid arguments or unreadable inventory
+#
+
+	local inventory_file="${1}"
+	local field="${2}"
+	local wanted_version="${3:-}"
+	local version
+	local url
+	local checksum
+	local default
+
+	# Check we have a valid $field:
+	case "${field}" in
+		version|url|checksum)
+			# These values are OK, do nothing
+			;;
+		*)
+			return 2
+			;;
+	esac
+
+	# Check inventory file is readable:
+	[[ -r "${inventory_file}" ]] || return 2
+
+	# Read inventory file line by line and map columns to variables
+	# shellcheck disable=SC2034
+	while IFS=$'\t' read -r version url checksum default; do
+		# Skip comments and blank lines
+		[[ -z "${version}" || "${version}" == \#* ]] && continue
+
+		if [[ -n "${wanted_version}" ]]; then
+			# Skip instructions and go on with the next line
+			# if current version is not the one we're looking for:
+			[[ "${version}" == "${wanted_version}" ]] || continue
+		else
+			# Skip instructions and go on with the next line
+			# if current row is not the default one:
+			[[ "${default}" == "default" ]] || continue
+		fi
+
+		printf '%s\n' "${!field}"
+		return 0
+	done < "${inventory_file}"
+
+	# If we reach this line, we haven't found what we're looking for:
+	return 1
+}
+
+cmn::inventory::get_default() {
+#
+# Retrieves the default version from the inventory file.
+#
+
+	local -r inventory_file="${1}"
+
+	_cmn__inventory_get \
+		"${inventory_file}" \
+		"version"
+}
+
+cmn::inventory::get_url() {
+#
+# Given a specific version, retrieves the corresponding URL from the given
+# inventory file.
+#
+# $1: inventory file to search
+# $2: wanted version, defaults to version set as default in inventory
+#
+
+	local -r inventory_file="${1}"
+	local -r wanted_version="${2:-}"
+
+	# Return if no version was specified and we weren't able to retrieve a
+	# default one.
+	[[ -n "${wanted_version}" ]] || return 2
+	
+	cmn__inventory_get \
+		"${inventory_file}" \
+		"url" \
+		"${wanted_version}"
+}
+
+cmn::inventory::get_checksum() {
+#
+# Given a specific version, retrieves the corresponding checksum from the given
+# inventory file.
+#
+# $1: inventory file to search
+# $2: wanted version, defaults to version set as default in inventory
+#
+
+	local -r inventory_file="${1}"
+	local -r wanted_version="${2:-}"
+
+	# Return if no version was specified and we weren't able to retrieve a
+	# default one.
+	[[ -n "${wanted_version}" ]] || return 2
+	
+	cmn__inventory_get \
+		"${inventory_file}" \
+		"checksum" \
+		"${wanted_version}"
+}
+
+
+
+_cmn__file_read_checksum() {
+#
+# Reads file hash from the given checksum file.
+# Output format is <hashing_algorithm>:<hash>.
+#
+# Tips: use `cmn::file::validate_checksum` directly.
+#
+# $1: checksum file
+#
+
+	local -r file="${1}"
+
+	local -r hash_algo="${file##*.}"
+	local hash
+
+	# Reads the whole first line of $file
+	# Ensure this command never provokes an exit.
+	# (`read` returns 1 when the file misses a newline at EOF)
+	IFS= read -r line < "${file}" || true
+
+	# Trim starting whitespaces:
+	line=${line#"${line%%[![:space:]]*}"}
+
+	# Retrieves the string before the first whitespace:
+	hash=${line%%[[:space:]]*}
+
+	printf "%s:%s\n" "${hash_algo}" "${hash}"
+}
+
 cmn::file::validate_checksum() {
 #
 # Computes the checksum of a file and checks that it matches the one stored in
@@ -372,27 +524,25 @@ cmn::file::validate_checksum() {
 # md5, sha1, sha256, and sha512 hashing algorithm are currently supported.
 #
 # $1: file
-# $2: checksum file
+# $2: checksum file OR checksum
 #
 
 	local -r file="${1}"
-	local -r hash_file="${2}"
-
-	local -r hash_algo="${hash_file##*.}"
-	local ref_hash
-
-	# Reads the whole first line of hash_file
-	# Ensure this command never provokes an exit.
-	# (`read` returns 1 when the file misses a newline at EOF)
-	IFS= read -r line < "${hash_file}" || true
-
-	# Trim starting whitespaces:
-	line=${line#"${line%%[![:space:]]*}"}
-
-	# Retrieves the string before the first whitespace:
-	ref_hash=${line%%[[:space:]]*}
+	local hash="${2}"
 
 	local rc=1
+
+	# Check if given hash is a file.
+	# If so, we have to read it first and extract the reference hash from it.
+	if [[ -f "${hash}" ]]; then
+		hash="$( _cmn__file_read_checksum "${hash}" )"
+	fi
+
+	# Use Bash parameter expansion to split $hash in 2 parts:
+	# $hash_algo = longest match from beginning to a ':'
+	# $ref_hash = longest match from ':' to the end.
+	local -r hash_algo="${hash%%:*}"
+	local -r ref_hash="${hash##*:}"
 
 	case "${hash_algo}" in
 		"sha1")
@@ -422,7 +572,7 @@ cmn::file::validate_checksum() {
 
 	cmn::output::debug <<-EOM
 		file:      ${file}
-		hash_file: ${hash_file}
+		hash:      ${hash}
 		hash_algo: ${hash_algo}
 		ref_hash:  ${ref_hash}
 		result:    ${rc}
@@ -480,13 +630,113 @@ cmn::file::download_and_check() {
 	cmn::file::download "${file_url}" "${file_path}" &
 	cmn::file::download "${hash_url}" "${hash_path}" &
 
-	if cmn::jobs::wait; then
-		cmn::file::validate_checksum "${file_path}" "${hash_path}"
+	cmn::jobs::wait
+	cmn::file::validate_checksum "${file_path}" "${hash_path}"
+	rc="${?}"
+
+	return "${rc}"
+}
+
+
+
+cmn::s3::upload() {
+#
+# Uploads a local file to a S3-compatible storage bucket.
+#
+# $1: Path to the local file to upload
+# $2: Name of the bucket where to upload the file
+# $3: Key of the object (name of the file in the remote bucket)
+#
+
+	local rc
+	local output
+	local -r file="${1}"
+	local -r bucket="${2}"
+	local -r key="${3#/}"		# Removes any leading slash
+	local -r dest="s3://${bucket}/${key}"
+
+	if [[ ! -f "${file}" ]]; then
+		printf "Unable to upload '%s': " \
+				"file is not local.\n" \
+				"${file}" >&2
+		rc=2
+	else
+		output="$( aws s3 cp \
+					"${file}" \
+					"${dest}" \
+					--acl public-read \
+					2>&1 )"
+
 		rc="${?}"
+		if (( rc != 0 )); then
+			printf "%s\n" "${output}" >&2
+		fi
 	fi
 
 	return "${rc}"
 }
+
+cmn::s3::download() {
+#
+# Downloads a file from an S3-compatible storage bucket.
+#
+# $1: Name of the bucket where the file is stored
+# $2: Key of the object (name of the file in the remote bucket)
+# $3: Path to the local file
+#
+
+	local rc
+	local output
+	local -r bucket="${1}"
+	local -r key="${2#/}"		# Removes any leading slash
+	local -r file="${3}"
+	local -r source="s3://${bucket}/${key}"
+
+	local -r dir="$( dirname -- "${file}" )"
+
+	if [[ ! -d "${dir}" ]]; then
+		printf "Unable to download file to '%s': " \
+				"parent directory doesn't exist.\n" \
+				"${dir}" >&2
+		rc=2
+	else
+		output="$( aws s3 cp \
+					"${source}" \
+					"${file}" \
+					2>&1 )"
+
+		rc="${?}"
+		if (( rc != 0 )); then
+			printf "%s\n" "${output}" >&2
+		fi
+	fi
+
+	return "${rc}"
+}
+
+cmn::s3::list_bucket() {
+#
+# Lists the content of the given bucket.
+# Optionally limits the output to objects matching the given prefix.
+# Output is in JSON.
+#
+# Note:
+#   Using `s3api` is a requirement to have a JSON output,
+#   which is more suitable for scripting purposes.
+#
+# $1: Name of the bucket to list
+# $2: (opt): Prefix
+#
+
+	local -r bucket="${1}"
+	local -r prefix="${2:-}"
+
+	aws s3api list-objects-v2 \
+		--bucket "${bucket}" \
+		--prefix "${prefix}" \
+		--no-paginate
+}
+
 
 
 cmn::jobs::wait() {
@@ -503,6 +753,7 @@ cmn::jobs::wait() {
 	local rc=0
 	local pid
 
+	# shellcheck disable=SC2312
 	while read -r pid; do
 		# If $pid is empty, skip to next loop item:
 		[[ -z "${pid}" ]] && continue
@@ -526,18 +777,23 @@ cmn::env::read() {
 # match the negative pattern are exported.
 #
 
-	local -r env_dir="${1}"
+	local -r envdir="${1}"
 	local e
 	local value
+	local env_vars
+	
+	env_vars="$( cmn::env::list "${envdir}" )"
+
+	[[ -n "${env_vars}" ]] || return 0
 
 	while IFS= read -r e; do
 		# Read env var value from file:
-		value="$( <"${env_dir}/${e}" )"
+		value="$( <"${envdir}/${e}" )"
 		# Remove potential ending new line:
 		value="${value%$'\n'}"
 		# Export the env var:
 		export "${e}=${value}"
-	done < <(cmn::env::list "${env_dir}")
+	done <<< "${env_vars}"
 }
 
 cmn::env::list() {
@@ -580,6 +836,9 @@ cmn::env::list() {
 		# For example: f="/app/env/MY_VAR" --> name="MY_VAR"
 		name="${f##*/}"
 
+		# Skip if not a valid name:
+		[[ "${name}" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]] || continue
+
 		# Skip if in blocked:
 		[[ -n "${blocked[${name}]:-}" ]] && continue
 
@@ -605,6 +864,7 @@ cmn::bp::run() {
 	local bpdir
 	local bpout
 	local tech=""
+	local clone_args=(--quiet --depth=1)
 
 	if ! bpdir="$( mktemp --directory --tmpdir="${tmpdir}" \
 			--quiet "buildpack-XXXXXX" )"
@@ -619,14 +879,18 @@ cmn::bp::run() {
 
 		cmn::task::start "Downloading buildpack"
 		local archive="${bpdir}/${url##*/}"
-		cmn::file::download "${url}" "${archive}" \
-			|| cmn::main::fail "${?}" <<-EOM
+
+		# We want to handle cmn::file::download failures.
+		# shellcheck disable=SC2310
+		if ! cmn::file::download "${url}" "${archive}"; then
+			cmn::main::fail "${?}" <<-EOM
 				Unable to download the buildpack from ${url}.
 				Common errors include but are not limited to:
 				- Temporary network issue.
 				- Typo in the provided ULR.
 				- Using a URL that requires authentication.
 			EOM
+		fi
 		cmn::task::finish
 
 		cmn::task::start "Extracting buildpack code"
@@ -636,17 +900,23 @@ cmn::bp::run() {
 	else
 		cmn::task::start "Cloning buildpack"
 
+		if [[ -n "${branch}" ]]; then
+			clone_args+=(--branch "${branch}")
+		fi
+
 		# If the repo is not reachable, GIT_TERMINAL_PROMPT=0 allows us to fail
 		# instead of asking for credentials
-		GIT_TERMINAL_PROMPT=0 \
-		git clone --quiet --depth=1 "${url}" "${bpdir}" 2>/dev/null \
-			|| cmn::main::fail "${?}" <<-EOM
+		if ! GIT_TERMINAL_PROMPT=0 \
+			git clone "${clone_args[@]}" "${url}" "${bpdir}" 2>/dev/null
+		then
+			cmn::main::fail "${?}" <<-EOM
 				Unable to clone the buildpack from ${url}.
 				Common errors include but are not limited to:
 				- Temporary network issue.
 				- Typo in the Git URL.
 				- Using a private repository.
 			EOM
+		fi
 		cmn::task::finish
 
 		if [[ -f "${bpdir}/.gitmodules" ]]; then
@@ -685,10 +955,14 @@ cmn::bp::run() {
 	cmn::output::info "Detected technology: ${tech}"
 
 	cmn::task::start "Compiling"
-	if ! bpout="$( "${bpdir}/bin/compile" \
+	if bpout="$( "${bpdir}/bin/compile" \
 		"${builddir}" "${cachedir}" "${envdir}" 2>&1 )"
 	then
-		cmn::main::fail 2 <<-EOM
+		# Do nothing
+		# This syntax allows us to capture $? in the else block
+		:
+	else
+		cmn::main::fail "${?}" <<-EOM
 			An error occured while running the buildpack.
 			Here is the output:
 			${bpout}
@@ -738,9 +1012,19 @@ readonly -f cmn::task::start
 readonly -f cmn::task::finish
 readonly -f cmn::task::fail
 
+readonly -f cmn::inventory::get_default
+readonly -f cmn::inventory::get_url
+readonly -f cmn::inventory::get_checksum
+
 readonly -f cmn::file::validate_checksum
 readonly -f cmn::file::download
 readonly -f cmn::file::download_and_check
+
+readonly -f cmn::s3::upload
+readonly -f cmn::s3::download
+readonly -f cmn::s3::list_bucket
+
+readonly -f cmn::jobs::wait
 
 readonly -f cmn::env::read
 readonly -f cmn::env::list
@@ -753,3 +1037,5 @@ readonly -f _cmn__main_err
 readonly -f _cmn__main_end
 readonly -f _cmn__trap_setup
 readonly -f _cmn__trap_teardown
+readonly -f _cmn__inventory_get
+readonly -f _cmn__file_read_checksum
