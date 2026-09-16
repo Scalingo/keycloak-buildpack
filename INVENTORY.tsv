@@ -1,3 +1,4 @@
 Version	URL	Checksum	Default?
-26.7.3	https://github.com/keycloak/keycloak/releases/download/26.7.3/keycloak-26.7.3.tar.gz	sha256:77657f30b7e90d70f727712ce1c967f430fd6a5e9f458d32d8c6df0635345f47	default
+26.7.4	https://github.com/keycloak/keycloak/releases/download/26.7.4/keycloak-26.7.4.tar.gz	sha256:04823c336b797a7e18889a44262a7a64e6bf624cbbcc518c85e2622176ff2eee	default
+26.7.3	https://github.com/keycloak/keycloak/releases/download/26.7.3/keycloak-26.7.3.tar.gz	sha256:77657f30b7e90d70f727712ce1c967f430fd6a5e9f458d32d8c6df0635345f47	
 26.7.2	https://github.com/keycloak/keycloak/releases/download/26.7.2/keycloak-26.7.2.tar.gz	sha256:4f3ce3b797a9d98998b7f1a6bd5d2b9832100faea66c48988713a9b23eda5c44	
