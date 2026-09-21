@@ -94,7 +94,7 @@ if [[ ! -f "${cache_file}" ]]; then
 	# Download appropriate version:
 	cmn::task::start "Downloading archive"
 	if ! cmn::file::download "${archive_url}" "${cache_file}"; then
-		cmn::main::fail "${?}" <<-EOM
+		cmn::main::fail 2 <<-EOM
 			Unable to download Keycloak archive.
 			Aborting.
 		EOM
@@ -177,7 +177,11 @@ cmn::task::finish
 cmn::step::start "Building optimized Keycloak image"
 
 cmn::task::start "Compiling"
-if ! "${keycloak_dir}/bin/kc.sh" build > "${build_log}" 2>&1; then
+if "${keycloak_dir}/bin/kc.sh" build > "${build_log}" 2>&1; then
+	# Do nothing, go on.
+	# This allows to catch $? in the else block.
+	:
+else
 	err="${?}"
 	cmn::task::fail
 	cmn::output::err < "${build_log}"
