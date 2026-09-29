@@ -1,0 +1,23 @@
+---
+name: Update buildpack inventory
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Everyday at 12pm:
+    - cron: "0 12 * * *"
+
+jobs:
+  update-inventory:
+    runs-on: ubuntu-26
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Update inventory
+        uses: Scalingo/actions/update-buildpack-inventory@main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          repository: keycloak/keycloak
+          major_versions: "26"

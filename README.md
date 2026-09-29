@@ -34,6 +34,6 @@ whenever feasible, except where immediate action is required due to security
 concerns or external constraints.
 
 
-[inventory]: INVENTORY.tsv?plain=1
+[inventory]: INVENTORY.tsv
 
 [Keycloak]: https://keycloak.org/
