@@ -4,6 +4,7 @@ name: Update buildpack inventory
 on:
   workflow_dispatch:
   schedule:
+    # Everyday at 7am and 4pm:
     - cron: "0 7,16 * * *"
 
 jobs:
