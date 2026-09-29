@@ -4,12 +4,12 @@ name: Update buildpack inventory
 on:
   workflow_dispatch:
   schedule:
-    # Everyday at 7am and 4pm:
-    - cron: "0 7,16 * * *"
+    # Everyday at 12pm:
+    - cron: "0 12 * * *"
 
 jobs:
   update-inventory:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26
     permissions:
       contents: write
       pull-requests: write
@@ -20,6 +20,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           repository: keycloak/keycloak
-          inventory_file: INVENTORY.tsv
           major_versions: "26"
-          default_major: "26"
