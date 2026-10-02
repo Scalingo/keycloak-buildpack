@@ -23,3 +23,4 @@ jobs:
           major_versions: "26"
           pr_assignees: "${{ vars.AUTO_ASSIGNEES }}"
           pr_reviewers: "${{ vars.AUTO_REVIEWERS }}"
+          releases_limit: 5
