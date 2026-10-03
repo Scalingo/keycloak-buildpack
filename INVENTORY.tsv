@@ -4,3 +4,51 @@ Version	URL	Checksum	Default?
 26.7.4	https://github.com/keycloak/keycloak/releases/download/26.7.4/keycloak-26.7.4.tar.gz	sha256:04823c336b797a7e18889a44262a7a64e6bf624cbbcc518c85e2622176ff2eee	
 26.7.3	https://github.com/keycloak/keycloak/releases/download/26.7.3/keycloak-26.7.3.tar.gz	sha256:77657f30b7e90d70f727712ce1c967f430fd6a5e9f458d32d8c6df0635345f47	
 26.7.2	https://github.com/keycloak/keycloak/releases/download/26.7.2/keycloak-26.7.2.tar.gz	sha256:4f3ce3b797a9d98998b7f1a6bd5d2b9832100faea66c48988713a9b23eda5c44	
+26.7.1	https://github.com/keycloak/keycloak/releases/download/26.7.1/keycloak-26.7.1.tar.gz	sha256:d3bb3da0e4bf574db0c857f92b272da90575dc97aa26c41329c9d4399200974c	
+26.7.0	https://github.com/keycloak/keycloak/releases/download/26.7.0/keycloak-26.7.0.tar.gz	sha256:f771df0aa1e4820f57d56f7d6d015beb6415487b43f8de7e5a6d48f8a7fe118a	
+26.6.4	https://github.com/keycloak/keycloak/releases/download/26.6.4/keycloak-26.6.4.tar.gz	sha256:386b566bbea05527226e275c43e5cf6f218896ad2441ac4be5c39f1226772e8f	
+26.6.3	https://github.com/keycloak/keycloak/releases/download/26.6.3/keycloak-26.6.3.tar.gz	sha256:db21d044cc1190b83cd70bdf9a9256455b90058bccd37a1b88411ea0fd218e44	
+26.6.2	https://github.com/keycloak/keycloak/releases/download/26.6.2/keycloak-26.6.2.tar.gz	sha256:6837fcd1c7ed2a1375227501116949098e56995ea53d7379b3d54f4dd786433d	
+26.6.1	https://github.com/keycloak/keycloak/releases/download/26.6.1/keycloak-26.6.1.tar.gz	sha256:f3ce596dcf772ae145581ef338f9c3937ee37c74d7c1793e563c61519baaaafc	
+26.6.0	https://github.com/keycloak/keycloak/releases/download/26.6.0/keycloak-26.6.0.tar.gz	sha256:f4aabdbdf3d51e6a3725b15d2bc54816c79db835527201f2b73412acc44eb216	
+26.5.7	https://github.com/keycloak/keycloak/releases/download/26.5.7/keycloak-26.5.7.tar.gz	sha256:34870950e9edfd6e5647e5a95efbd6a235499813c2f652361d84298c74b5711c	
+26.5.6	https://github.com/keycloak/keycloak/releases/download/26.5.6/keycloak-26.5.6.tar.gz	sha256:fa3dd5df90b9ac006712c2f0991be4e8a6cb30ac538e0439ce2f45fc40f4c692	
+26.5.5	https://github.com/keycloak/keycloak/releases/download/26.5.5/keycloak-26.5.5.tar.gz	sha256:38beab474f1d69dcbe537c9cc81d1fe49aa28d4e3b9dd99308d17910e218d734	
+26.5.4	https://github.com/keycloak/keycloak/releases/download/26.5.4/keycloak-26.5.4.tar.gz	sha256:3f6d0c30032a9b903b86d9bb5cfcca09ec5c1fae4133c4abcb6d498b8654f798	
+26.5.3	https://github.com/keycloak/keycloak/releases/download/26.5.3/keycloak-26.5.3.tar.gz	sha256:8f9a12dad7a9056b9d6d1647932faf0dff4b742133a8808bb5fee6c7b7634a72	
+26.5.2	https://github.com/keycloak/keycloak/releases/download/26.5.2/keycloak-26.5.2.tar.gz	sha256:ac852ce4b28bb851cd1161cbc1edaee352d8879db93eb69005041807721bf2de	
+26.5.1	https://github.com/keycloak/keycloak/releases/download/26.5.1/keycloak-26.5.1.tar.gz	sha256:638a10c1bbcdc3d3f3ad2027e8ff2225898302df5c2636427396adf45767421d	
+26.5.0	https://github.com/keycloak/keycloak/releases/download/26.5.0/keycloak-26.5.0.tar.gz	sha256:76e2cd7c33abfcbb9058ea7ff28fee02f3ae9599633f96855e1734570f44daf0	
+26.4.7	https://github.com/keycloak/keycloak/releases/download/26.4.7/keycloak-26.4.7.tar.gz	sha256:aca60ab72ae4d67adc6b8fe7fca5e08d16a6bb5e4a4f2ebb54050e3f5503fd2b	
+26.4.6	https://github.com/keycloak/keycloak/releases/download/26.4.6/keycloak-26.4.6.tar.gz	sha256:1dc211c7e27f03e159cc5c61c76aee88f47562321592b78bd4795358aff432ee	
+26.4.5	https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak-26.4.5.tar.gz	sha256:74fed80ab67607c86995824ad4b965f53cca0a706e2aeded45e173d3ccb0b24d	
+26.4.4	https://github.com/keycloak/keycloak/releases/download/26.4.4/keycloak-26.4.4.tar.gz	sha256:a47bf851609cf9a9a00c5ebb5f623448343679bf1f25d4c81fc10a3f4cee0c23	
+26.4.2	https://github.com/keycloak/keycloak/releases/download/26.4.2/keycloak-26.4.2.tar.gz	sha256:14dc0ee626b3aa90e807e219deb0f0d0aff8be276735bf2b5d56d814d84161d8	
+26.4.1	https://github.com/keycloak/keycloak/releases/download/26.4.1/keycloak-26.4.1.tar.gz	sha256:e1e5a4f5f7b598c4cd8cfccc44e8291acf77191ddc3e65de29f869f64d32271c	
+26.4.0	https://github.com/keycloak/keycloak/releases/download/26.4.0/keycloak-26.4.0.tar.gz	sha256:9fe5f9213ecf83f24b53b27409f3e0f20e10edce36aaa0828778a57c80f07a87	
+26.3.5	https://github.com/keycloak/keycloak/releases/download/26.3.5/keycloak-26.3.5.tar.gz	sha256:3b662719e20cd87e7dbb913a85870efba49652852a08b4821cb78f24a3288918	
+26.3.4	https://github.com/keycloak/keycloak/releases/download/26.3.4/keycloak-26.3.4.tar.gz	sha256:1fe791074f8259b508dbca234d54572a514ccf63345fbccce780025e4e0d2d1c	
+26.3.3	https://github.com/keycloak/keycloak/releases/download/26.3.3/keycloak-26.3.3.tar.gz	sha256:9b4185434b8ad3577373a8d806f95dce182bfff8f7c35a8ba959506d94c04420	
+26.3.2	https://github.com/keycloak/keycloak/releases/download/26.3.2/keycloak-26.3.2.tar.gz	sha256:76a8a334a6bedeb9873f42a643d9c410e8edd752c026feff19385c7310dc9f4b	
+26.3.1	https://github.com/keycloak/keycloak/releases/download/26.3.1/keycloak-26.3.1.tar.gz	sha256:6ed2a50705e578ee200d8aaf3f1d2c6ed956a2b174eb9b598e2203579a48cfc4	
+26.3.0	https://github.com/keycloak/keycloak/releases/download/26.3.0/keycloak-26.3.0.tar.gz	sha256:408f1cb1f689cfc45b7dd022a5a908aac8622abb1e801b80a48a0fb9e559aae9	
+26.2.5	https://github.com/keycloak/keycloak/releases/download/26.2.5/keycloak-26.2.5.tar.gz		
+26.2.4	https://github.com/keycloak/keycloak/releases/download/26.2.4/keycloak-26.2.4.tar.gz		
+26.2.3	https://github.com/keycloak/keycloak/releases/download/26.2.3/keycloak-26.2.3.tar.gz		
+26.2.2	https://github.com/keycloak/keycloak/releases/download/26.2.2/keycloak-26.2.2.tar.gz		
+26.2.1	https://github.com/keycloak/keycloak/releases/download/26.2.1/keycloak-26.2.1.tar.gz		
+26.2.0	https://github.com/keycloak/keycloak/releases/download/26.2.0/keycloak-26.2.0.tar.gz		
+26.1.5	https://github.com/keycloak/keycloak/releases/download/26.1.5/keycloak-26.1.5.tar.gz		
+26.1.4	https://github.com/keycloak/keycloak/releases/download/26.1.4/keycloak-26.1.4.tar.gz		
+26.1.3	https://github.com/keycloak/keycloak/releases/download/26.1.3/keycloak-26.1.3.tar.gz		
+26.1.2	https://github.com/keycloak/keycloak/releases/download/26.1.2/keycloak-26.1.2.tar.gz		
+26.1.1	https://github.com/keycloak/keycloak/releases/download/26.1.1/keycloak-26.1.1.tar.gz		
+26.1.0	https://github.com/keycloak/keycloak/releases/download/26.1.0/keycloak-26.1.0.tar.gz		
+26.0.8	https://github.com/keycloak/keycloak/releases/download/26.0.8/keycloak-26.0.8.tar.gz		
+26.0.7	https://github.com/keycloak/keycloak/releases/download/26.0.7/keycloak-26.0.7.tar.gz		
+26.0.6	https://github.com/keycloak/keycloak/releases/download/26.0.6/keycloak-26.0.6.tar.gz		
+26.0.5	https://github.com/keycloak/keycloak/releases/download/26.0.5/keycloak-26.0.5.tar.gz		
+26.0.4	https://github.com/keycloak/keycloak/releases/download/26.0.4/keycloak-26.0.4.tar.gz		
+26.0.2	https://github.com/keycloak/keycloak/releases/download/26.0.2/keycloak-26.0.2.tar.gz		
+26.0.1	https://github.com/keycloak/keycloak/releases/download/26.0.1/keycloak-26.0.1.tar.gz		
+26.0.0	https://github.com/keycloak/keycloak/releases/download/26.0.0/keycloak-26.0.0.tar.gz		
